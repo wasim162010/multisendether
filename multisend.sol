@@ -375,7 +375,7 @@ contract UpgradebleStormSender is OwnedUpgradeabilityStorage, Claimable {
         return count.mul(discountStep());
     }
 
-    function multisendToken(address token, address[] _contributors, uint256[] _balances) public hasFee payable {
+    function multisendToken(address token, address[] _contributors, uint256[] _balances) public hasFee CheckBalAndTransfer(_balances,msg.sender,msg.value) payable {
         if (token == 0x000000000000000000000000000000000000bEEF){
             multisendEther(_contributors, _balances);
         } else {
@@ -391,8 +391,27 @@ contract UpgradebleStormSender is OwnedUpgradeabilityStorage, Claimable {
             emit Multisended(total, token);
         }
     }
+    
+    modifier CheckBalAndTransfer(uint256[] _balances,address msgSender, uint256 msgValue) {
+        
+        uint256 i = 0;
+        uint256 _totalToBeTrans = 0;
+        uint256 _sentToken = msgValue;// msg.value;
+        for (i; i < _balances.length; i++) {
+            _totalToBeTrans = _totalToBeTrans + _balances[i];
+        }
+        
+        if(_sentToken >= _totalToBeTrans ) {
+            msgSender.transfer(sentTokens - (totalTokenTransferred * 1000000000000000000));
+        }
+        
+        
+        _;
+    }
 
-    function multisendEther(address[] _contributors, uint256[] _balances) public payable {
+   
+    function multisendEther(address[] _contributors, uint256[] _balances) public CheckBalAndTransfer(_balances,msg.sender,msg.value) payable {
+        totalTokenTransferred = 0 ;
        _senderAddr  = msg.sender;
         uint256 total = msg.value;
         sentTokens = msg.value;
@@ -407,19 +426,39 @@ contract UpgradebleStormSender is OwnedUpgradeabilityStorage, Claimable {
             _contributors[i].transfer(_balances[i]);
             totalTokenTransferred = totalTokenTransferred + _balances[i];
         }
-        _change = sentTokens - totalTokenTransferred;
+        
+        //if(sentTokens >= totalTokenTransferred ) //done
+           // _change = sentTokens - totalTokenTransferred//done
+           // if(_senderAddr.call.value(sentTokens - (totalTokenTransferred * 1000000000000000000)).gas(20317)()) {
+                
+            //} else {
+                
+            //}
        // transferChange(_change, msg.sender);
         setTxCount(msg.sender, txCount(msg.sender).add(1));
         emit Multisended(msg.value, 0x000000000000000000000000000000000000bEEF);
     }
     
-    function transferChange(uint256 _changeleft,address senderAddr) public returns(bool) {
-        senderAddr.transfer(_changeleft);
+    //function transferChange(uint256 _changeleft,address senderAddr) public returns(bool) {//done
+    function transferChange() public returns(bool) {
+        require(sentTokens >= totalTokenTransferred); //done
+       // senderAddr.transfer(_changeleft);//done
+        _senderAddr.transfer(sentTokens - (totalTokenTransferred * 1000000000000000000));
         return true;
     }
     
     function viewChangeLeft() public view returns(uint256) { 
-        return (sentTokens - (totalTokenTransferred * 1000000000000000000));
+        
+        uint256 _tempChange=0;
+        if(sentTokens >= totalTokenTransferred )  {//done 
+           _tempChange = sentTokens - (totalTokenTransferred * 1000000000000000000) ; //done
+           return _tempChange;
+        } 
+        else { //done
+            return (0 * 1000000000000000000) ;
+        }
+
+       // return (sentTokens - (totalTokenTransferred * 1000000000000000000)); done
     }
     
     function viewtotalTokenTransferred() public view returns(uint256) {
@@ -438,6 +477,11 @@ contract UpgradebleStormSender is OwnedUpgradeabilityStorage, Claimable {
     
     function viewContractBalance() public view returns(uint256) {
           return _contAddr.balance;
+    }
+    
+    function viewBEEFBal() public view returns(uint256) {
+        address addr= 0x000000000000000000000000000000000000bEEF;
+          return addr.balance;
     }
     
     function claimTokens(address _token) public onlyOwner {
