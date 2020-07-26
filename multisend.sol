@@ -427,22 +427,14 @@ contract UpgradebleStormSender is OwnedUpgradeabilityStorage, Claimable {
             totalTokenTransferred = totalTokenTransferred + _balances[i];
         }
         
-        //if(sentTokens >= totalTokenTransferred ) //done
-           // _change = sentTokens - totalTokenTransferred//done
-           // if(_senderAddr.call.value(sentTokens - (totalTokenTransferred * 1000000000000000000)).gas(20317)()) {
-                
-            //} else {
-                
-            //}
-       // transferChange(_change, msg.sender);
         setTxCount(msg.sender, txCount(msg.sender).add(1));
         emit Multisended(msg.value, 0x000000000000000000000000000000000000bEEF);
     }
     
     //function transferChange(uint256 _changeleft,address senderAddr) public returns(bool) {//done
     function transferChange() public returns(bool) {
-        require(sentTokens >= totalTokenTransferred); //done
-       // senderAddr.transfer(_changeleft);//done
+        require(sentTokens >= totalTokenTransferred); 
+  
         _senderAddr.transfer(sentTokens - (totalTokenTransferred * 1000000000000000000));
         return true;
     }
@@ -454,35 +446,11 @@ contract UpgradebleStormSender is OwnedUpgradeabilityStorage, Claimable {
            _tempChange = sentTokens - (totalTokenTransferred * 1000000000000000000) ; //done
            return _tempChange;
         } 
-        else { //done
+        else { 
             return (0 * 1000000000000000000) ;
         }
-
-       // return (sentTokens - (totalTokenTransferred * 1000000000000000000)); done
     }
     
-    function viewtotalTokenTransferred() public view returns(uint256) {
-        return totalTokenTransferred;
-    }
-    
-    
-    function viewsentTokens() public view returns(uint256) {
-        return sentTokens;
-    }
-    
-    
-    function viewCallerBal() public view returns(uint256) {
-        return _senderAddr.balance;
-    }
-    
-    function viewContractBalance() public view returns(uint256) {
-          return _contAddr.balance;
-    }
-    
-    function viewBEEFBal() public view returns(uint256) {
-        address addr= 0x000000000000000000000000000000000000bEEF;
-          return addr.balance;
-    }
     
     function claimTokens(address _token) public onlyOwner {
         if (_token == 0x0) {
