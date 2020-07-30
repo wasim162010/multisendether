@@ -1,15 +1,4 @@
 
-// File: contracts/EternalStorage.sol
-
-// Roman Storm Multi Sender
-// To Use this Dapp: https://rstormsf.github.io/multisender
-pragma solidity 0.4.24;
-
-
-/**
- * @title EternalStorage
- * @dev This contract holds all the necessary state variables to carry out the storage of any contract.
- */
 contract EternalStorage {
 
     mapping(bytes32 => uint256) internal uintStorage;
