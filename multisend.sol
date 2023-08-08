@@ -260,7 +260,7 @@ contract ERC20 is ERC20Basic {
 }
 
 
-contract UpgradebleStormSender is OwnedUpgradeabilityStorage, Claimable {
+contract MultiSend is OwnedUpgradeabilityStorage, Claimable {
     using SafeMath for uint256;
 
     event Multisended(uint256 total, address tokenAddress);
